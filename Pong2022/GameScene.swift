@@ -22,4 +22,24 @@ class GameScene: SKScene
         
     }
     
+    // this method gets called everytime i touch my screen
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?)
+    {
+        let location = touches.first!.location(in: self)
+        makeNewBall(touchLocation: location)
+    }
+    
+    func makeNewBall(touchLocation: CGPoint)
+    {
+        var newBall = SKSpriteNode(imageNamed: "walter")
+        newBall.size = CGSize(width: 100, height: 100)
+        newBall.position = touchLocation
+        
+        addChild(newBall)
+        
+        // give the object physics
+        newBall.physicsBody = SKPhysicsBody(circleOfRadius: 50)
+        
+    }
+    
 }
