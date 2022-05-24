@@ -13,6 +13,7 @@ class GameScene: SKScene
     
     var ball = SKSpriteNode()
     var paddle = SKSpriteNode()
+    var compPaddle = SKSpriteNode()
     
     // didMove is similar to viewDidLoad
     override func didMove(to view: SKView)
@@ -20,7 +21,7 @@ class GameScene: SKScene
         
         ball = childNode(withName: "ball") as! SKSpriteNode
         paddle = childNode(withName: "paddle") as! SKSpriteNode
-        
+        createComputerPaddle()
         
         let borderBody = SKPhysicsBody(edgeLoopFrom: self.frame)
         borderBody.friction = 0
@@ -32,6 +33,39 @@ class GameScene: SKScene
         
         
     }
+    
+    
+    func createComputerPaddle()
+    {
+        compPaddle = SKSpriteNode(color: UIColor.systemPurple, size: CGSize(width: 150, height: 50))
+        compPaddle.position = CGPoint(x: frame.width/2, y: frame.height*0.9)
+        addChild(compPaddle)
+        
+        // add physics
+        compPaddle.physicsBody = SKPhysicsBody(rectangleOf: compPaddle.frame.size)
+        compPaddle.physicsBody?.allowsRotation = false
+        compPaddle.physicsBody?.friction = 0
+        compPaddle.physicsBody?.affectedByGravity = false
+        compPaddle.physicsBody?.isDynamic = false
+        
+        let follow = SKAction.repeatForever(SKAction.sequence([
+            SKAction.run(followBall),
+            SKAction.wait(forDuration: 0.2)
+        ]))
+        
+        run(follow)
+        
+    }
+    
+    func followBall()
+    {
+        let move = SKAction.moveTo(x: ball.position.x, duration: 0.2)
+        compPaddle.run(move)
+    }
+    
+//    override func update(_ currentTime: TimeInterval) {
+//        compPaddle.position = CGPoint(x: ball.position.x, y: compPaddle.position.y)
+//    }
     
     var isTouchingPaddle = false
     // this method gets called everytime i touch my screen
