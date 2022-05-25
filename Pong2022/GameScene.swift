@@ -8,12 +8,14 @@
 import SpriteKit
 import GameplayKit
 
-class GameScene: SKScene
+class GameScene: SKScene, SKPhysicsContactDelegate
 {
     
     var ball = SKSpriteNode()
     var paddle = SKSpriteNode()
     var compPaddle = SKSpriteNode()
+    var top = SKSpriteNode()
+    var bottom = SKSpriteNode()
     
     // didMove is similar to viewDidLoad
     override func didMove(to view: SKView)
@@ -22,15 +24,65 @@ class GameScene: SKScene
         ball = childNode(withName: "ball") as! SKSpriteNode
         paddle = childNode(withName: "paddle") as! SKSpriteNode
         createComputerPaddle()
+        createTopAndBottom()
         
         let borderBody = SKPhysicsBody(edgeLoopFrom: self.frame)
         borderBody.friction = 0
         
-        
         self.physicsBody = borderBody
         self.physicsWorld.gravity = CGVector(dx: 0, dy: -9.8)
+        physicsWorld.contactDelegate = self
         
+        ball.physicsBody?.categoryBitMask = 1
+        paddle.physicsBody?.categoryBitMask = 2
+        compPaddle.physicsBody?.categoryBitMask = 3
+        top.physicsBody?.categoryBitMask = 4
+        bottom.physicsBody?.categoryBitMask = 5
         
+        ball.physicsBody?.contactTestBitMask = 2 | 3 | 4 | 5
+        
+    }
+    
+    func didBegin(_ contact: SKPhysicsContact) {
+        let location = contact.contactPoint
+        print(location)
+        
+        if contact.bodyA.categoryBitMask == 1 && contact.bodyB.categoryBitMask == 4
+        {
+            // ball hit the top
+            print("Ball hit top. Player scored!!!")
+        }
+        if contact.bodyA.categoryBitMask == 4 && contact.bodyB.categoryBitMask == 1
+        {
+            // ball hit the top
+            print("Ball hit top. Player scored!!!")
+        }
+        
+        if contact.bodyA.categoryBitMask == 1 && contact.bodyB.categoryBitMask == 5
+        {
+            // ball hit the bottom
+            print("Ball hit bottom. computer scored!!!")
+        }
+        if contact.bodyA.categoryBitMask == 5 && contact.bodyB.categoryBitMask == 1
+        {
+            // ball hit the bottom
+            print("Ball hit bottom. computer scored!!!")
+        }
+    }
+    
+    func createTopAndBottom()
+    {
+        top = SKSpriteNode(color: UIColor.red, size: CGSize(width: self.frame.width, height: 10))
+        top.position = CGPoint(x: self.frame.width/2, y: self.frame.height*0.98)
+        addChild(top)
+        top.physicsBody = SKPhysicsBody(rectangleOf: top.frame.size)
+        top.physicsBody?.isDynamic = false
+        
+        bottom = SKSpriteNode(color: UIColor.red, size: CGSize(width: self.frame.width, height: 10))
+        bottom.position = CGPoint(x: self.frame.width/2, y: self.frame.height*0.02)
+        addChild(bottom)
+        bottom.physicsBody = SKPhysicsBody(rectangleOf: bottom.frame.size)
+        bottom.physicsBody?.isDynamic = false
         
     }
     
