@@ -16,6 +16,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate
     var compPaddle = SKSpriteNode()
     var top = SKSpriteNode()
     var bottom = SKSpriteNode()
+    var scoreLabel = SKLabelNode()
+    var playerScore = 0
+    var computerScore = 0
     
     // didMove is similar to viewDidLoad
     override func didMove(to view: SKView)
@@ -25,6 +28,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate
         paddle = childNode(withName: "paddle") as! SKSpriteNode
         createComputerPaddle()
         createTopAndBottom()
+        createScoreLabels()
         
         let borderBody = SKPhysicsBody(edgeLoopFrom: self.frame)
         borderBody.friction = 0
@@ -43,6 +47,25 @@ class GameScene: SKScene, SKPhysicsContactDelegate
         
     }
     
+    
+    func createScoreLabels()
+    {
+        scoreLabel = SKLabelNode(text: "0 - 0")
+        scoreLabel.fontName = "Arial"
+        scoreLabel.fontSize = 75
+        scoreLabel.position = CGPoint(x: frame.width * 0.10, y: frame.height/2)
+        scoreLabel.fontColor = UIColor.white
+        scoreLabel.zRotation = .pi/2
+        
+        addChild(scoreLabel)
+        
+    }
+    
+    func updateScore()
+    {
+        scoreLabel.text = "\(playerScore) - \(computerScore)"
+    }
+    
     func didBegin(_ contact: SKPhysicsContact) {
         let location = contact.contactPoint
         print(location)
@@ -51,23 +74,60 @@ class GameScene: SKScene, SKPhysicsContactDelegate
         {
             // ball hit the top
             print("Ball hit top. Player scored!!!")
+            resetBall()
+            playerScore += 1
+            updateScore()
         }
         if contact.bodyA.categoryBitMask == 4 && contact.bodyB.categoryBitMask == 1
         {
             // ball hit the top
             print("Ball hit top. Player scored!!!")
+            resetBall()
+            playerScore += 1
+            updateScore()
         }
         
         if contact.bodyA.categoryBitMask == 1 && contact.bodyB.categoryBitMask == 5
         {
             // ball hit the bottom
             print("Ball hit bottom. computer scored!!!")
+            resetBall()
+            computerScore += 1
+            updateScore()
         }
         if contact.bodyA.categoryBitMask == 5 && contact.bodyB.categoryBitMask == 1
         {
             // ball hit the bottom
             print("Ball hit bottom. computer scored!!!")
+            resetBall()
+            computerScore += 1
+            updateScore()
         }
+    }
+    
+    func bringBallToCenter()
+    {
+        ball.position = CGPoint(x: frame.width/2, y: frame.height/2)
+    }
+    
+    func resetBall()
+    {
+        // stop ball
+        ball.physicsBody?.velocity = .zero
+        // pause
+        let pause = SKAction.wait(forDuration: 3)
+        // move ball
+        let move = SKAction.run(bringBallToCenter)
+        // pause
+        // push ball
+        let push = SKAction.run(pushBall)
+        let sequence = SKAction.sequence([pause, move, pause, push])
+        run(sequence)
+    }
+    
+    func pushBall()
+    {
+        ball.physicsBody?.applyImpulse(CGVector(dx: 50, dy: 50)) // maybe change these numbers and make them random
     }
     
     func createTopAndBottom()
